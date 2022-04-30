@@ -1,15 +1,17 @@
 import { Diff } from "diff-match-patch";
 
+
 interface Document {
 
+    readonly id: bigint;
     readonly content: string;
     readonly shadows: ReadonlyArray<string>;
 
     open(): Document;
     close(): boolean;
 
-    addCollaborator(uid: string): false | string;
-    removeCollaborator(uid: string): boolean;
+    addClient(uid: string): false | string;
+    removeClient(uid: string): boolean;
 
     diff(uid: string): false | ReadonlyArray<Diff>;
     patch(uid: string, edits: Diff[]): boolean;

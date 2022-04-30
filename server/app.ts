@@ -7,7 +7,7 @@ dotenv.config();
 
 const app: Express = express();
 const server = http.createServer(app);
-const io = new sio.Server(server);
+const io: sio.Server = new sio.Server(server);
 const port = process.env.PORT;
 
 // HTTP
