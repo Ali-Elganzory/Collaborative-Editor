@@ -21,10 +21,9 @@ export default interface Comms {
      * session.
      * 
      * @param uid user id
-     * @param documentId document id
      * @param edits edits to send to the user
      */
-    sendDocumentEditsToUser(uid: string, documentId: string, edits: ReadonlyArray<Diff>): Promise<void>;
+    sendEditsToClient(uid: string, edits: ReadonlyArray<Diff>): void;
 
     /**
      * Global event callback for any received edits from 
