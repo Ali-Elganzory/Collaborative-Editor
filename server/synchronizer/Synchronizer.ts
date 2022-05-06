@@ -20,8 +20,9 @@ export default interface Synchronizer {
      * to get initial document content as well 
      * as a callback for user edits.
      * 
-     * @param uid user id
-     * @param documentId session's document id
+     * @param uid 
+     * @param documentId 
+     * @param sendEditsToClient 
      */
     clientEnteredSession(uid: string, documentId: bigint, sendEditsToClient: SendEditsToClientCallback): false | ClientEnteredSessionResponse;
 
