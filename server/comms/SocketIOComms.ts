@@ -50,7 +50,7 @@ export default class SocketIOComms implements Comms {
 
                         // Callback for sending updates to this
                         // user.
-                        const sendEditsToClient: SendEditsToClientCallback = (edits: ReadonlyArray<Diff>) => {
+                        const sendEditsToClient: SendEditsToClientCallback = (edits: string) => {
                             socket.emit(this.editsEventName, edits);
                         }
 
@@ -83,9 +83,13 @@ export default class SocketIOComms implements Comms {
                         // Send back initial document content
                         // (acknowledgment).
                         callback((response as ClientEnteredSessionResponse)[0]);
-                    }
-                )
 
+                        // Remove client session when disconnected.
+                        socket.once('disconnect', () => {
+                            synchronizer.clientLeftSession(socket.id, documentId);
+                        });
+                    }
+                );
             }
         );
     }

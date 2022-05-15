@@ -15,7 +15,7 @@ export default interface Document {
     addClient(uid: string): false | string;
     removeClient(uid: string): boolean;
 
-    diff(uid: string): ReadonlyArray<Diff>;
-    patch(uid: string, edits: Diff[]): boolean;
+    diff(uid: string): string;
+    patch(uid: string, edits: string): boolean;
 
 }

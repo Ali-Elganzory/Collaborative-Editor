@@ -1,5 +1,5 @@
 import sio from "socket.io";
-import { Diff } from "diff-match-patch";
+import { Diff, diff_match_patch } from "diff-match-patch";
 
 import Document from "./Document";
 
@@ -46,15 +46,18 @@ export default class MockDocument implements Document {
         return true;
     }
 
-    diff(uid: string): ReadonlyArray<Diff> {
+    diff(uid: string): string {
         console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} requested diffs.`);
-        return [
-            [2, "edit 1"],
-            [17, "edit 2"]
-        ];
+        const dmp = new diff_match_patch();
+        const patches = dmp.patch_make([
+            [0, "edit 1"],
+            [1, "edit 2"]
+        ]);
+
+        return dmp.patch_toText(patches);
     }
 
-    patch(uid: string, edits: Diff[]): boolean {
+    patch(uid: string, edits: string): boolean {
         console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} patched diffs: ${edits}.`);
         return true;
     }

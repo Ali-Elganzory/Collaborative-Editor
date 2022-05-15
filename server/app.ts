@@ -2,6 +2,8 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import http from "http";
+import bodyParser from 'body-parser';
+import cors from "cors";
 import sio from "socket.io";
 
 // App dependencies.
@@ -11,29 +13,69 @@ import DiffSynchronizer from "./synchronizer/DiffSynchronizer";
 // Environment configuration.
 dotenv.config();
 
-// Server apps initialization
+/**
+ * HTTP server initialization.
+ */
 const app: Express = express();
 const server = http.createServer(app);
-const io: sio.Server = new sio.Server(server);
 const port = process.env.PORT;
 
-// HTTP.
+// Parser.
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.text());
+
+// CORS.
+const domainsFromEnv = process.env.CORS_DOMAINS || "";
+const whitelist = domainsFromEnv.split(",").map(item => item.trim());
+const corsOptions: cors.CorsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error("Not allowed by CORS"))
+        }
+    },
+    credentials: true,
+};
+app.use(cors(corsOptions));
+
+/**
+ * Socket.io server initialization.
+ */
+const io: sio.Server = new sio.Server(server, { cors: { origin: whitelist } });
+
+/**
+ * Routes.
+ */
+
+// Frontend.
 app.get('/', (req: Request, res: Response) => {
-    res.send('Express + TypeScript Server');
+    res.redirect('/editor');
 });
 
-// Socket-io.
-io.on('connection', (socket) => {
-    console.log(`a user connected with id = ${socket.id}`);
+app.get('/editor', (req: Request, res: Response) => {
+    res.send("Not yet implemented.");
 });
 
-// Document Synchronization
+// Backend API.
+
+// Import routers.
+let editorRouter = require('./routes/editor');
+
+// User routers.
+app.use('/api/editor', editorRouter);
+
+
+/**
+ * Document Synchronization.
+ */
 const editorPath: string = '/editor';
 const comms = new SocketIOComms(io.of(editorPath));
 const synchronizer = new DiffSynchronizer();
 comms.registerSynchronizer(synchronizer);
 
-// start
+// Start.
 server.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });

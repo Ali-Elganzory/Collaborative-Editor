@@ -3,8 +3,8 @@ import { Diff } from "diff-match-patch";
 import Document from "../document/Document";
 
 
-export type SendEditsToClientCallback = (edits: ReadonlyArray<Diff>) => void
-export type ClientSentEditsCallback = (edits: Diff[]) => void
+export type SendEditsToClientCallback = (edits: string) => void
+export type ClientSentEditsCallback = (edits: string) => void
 /**
  * a tuple of the initial document content and a callback for future user edits, respectively.
  */

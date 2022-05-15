@@ -1,22 +1,37 @@
 {
   "name": "client",
-  "version": "0.1.0",
-  "private": true,
+  "packageManager": "yarn@3.2.0",
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
+    "@fortawesome/free-regular-svg-icons": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@fortawesome/react-fontawesome": "latest",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^16.11.27",
+    "ace-builds": "^1.5.0",
+    "axios": "^0.27.2",
+    "diff-match-patch": "^1.0.5",
     "react": "^18.0.0",
+    "react-ace": "^10.1.0",
     "react-dom": "^18.0.0",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
-    "typescript": "^4.6.3",
-    "web-vitals": "^2.1.4"
+    "socket.io-client": "^4.5.0",
+    "typescript": "^4.6.3"
   },
   "devDependencies": {
+    "@types/diff-match-patch": "^1",
+    "@types/eslint": "^8",
     "@types/react": "^18.0.5",
-    "@types/react-dom": "^18.0.1"
+    "@types/react-dom": "^18.0.1",
+    "autoprefixer": "^10.4.7",
+    "eslint": "^8.15.0",
+    "eslint-config-react-app": "^7.0.1",
+    "postcss": "^8.4.13",
+    "tailwindcss": "^3.0.24"
   },
   "scripts": {
     "start": "react-scripts start",

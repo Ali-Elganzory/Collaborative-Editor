@@ -2,7 +2,7 @@ import { Diff } from "diff-match-patch";
 
 import Synchronizer, { ClientEnteredSessionResponse, ClientSentEditsCallback, SendEditsToClientCallback } from "../synchronizer/Synchronizer";
 import Document from "../document/Document";
-import MockDocument from "../document/MockDocument";
+import MemoryDocument from "../document/MemoryDocument";
 
 
 /**
@@ -23,7 +23,7 @@ export default class DiffSynchronizer implements Synchronizer {
         // Check the document openness state.
         // If not open, open it.
         if (!this._documentIdToDocument.has(documentId)) {
-            const document: Document = new MockDocument(documentId);
+            const document: Document = new MemoryDocument(documentId);
             document.open();
             this._documentIdToDocument.set(documentId, document);
         }
@@ -39,7 +39,7 @@ export default class DiffSynchronizer implements Synchronizer {
         const initialDocumentContent = response as string;
 
         // Callback for client's incoming edits.
-        const clientSentEditsCallback: ClientSentEditsCallback = (edits: Diff[]) => {
+        const clientSentEditsCallback: ClientSentEditsCallback = (edits: string) => {
             // Debug.
             console.log(`[${this.constructor.name}] User: ${uid}. Document: ${documentId}. Edits: ${edits}`);
 
@@ -54,7 +54,11 @@ export default class DiffSynchronizer implements Synchronizer {
 
     clientLeftSession(uid: string, documentId: bigint): boolean {
         // Remove client from document.
-        const document: Document = this._documentIdToDocument.get(documentId)!;
+        const document: Document | undefined = this._documentIdToDocument.get(documentId);
+        if (document == null) {
+            return false;
+        }
+
         document.removeClient(uid);
 
         // Close document if no clients are
