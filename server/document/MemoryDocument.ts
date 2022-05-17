@@ -1,7 +1,7 @@
 import sio from "socket.io";
 import { Diff, diff_match_patch, patch_obj } from "diff-match-patch";
 
-import Document from "./Document";
+import Document, { Clients, CursorPosition } from "./Document";
 
 
 /**
@@ -14,19 +14,21 @@ export default class MemoryDocument implements Document {
     private _isOpen: boolean = false;
     private _content: string = '';
     private _clientIdToShadow: Map<string, string> = new Map<string, string>();
+    private _clientIdToCursor: Map<string, CursorPosition> = new Map<string, CursorPosition>();
     protected dmp: diff_match_patch;
 
     get isOpen(): boolean { return this._isOpen; };
     get noClients(): boolean { return this._clientIdToShadow.size == 0; }
     get content(): string { return `${this._content}`; };
     get shadows(): ReadonlyArray<string> { return Array.from(this._clientIdToShadow.values()); };
+    get clientIdToCursor(): Map<string, CursorPosition> { return this._clientIdToCursor; }
+    get clients(): Clients { return Array.from(this._clientIdToCursor, ([id, cursor]) => ({ id, cursor })); }
 
 
     constructor(id: bigint) {
         this.id = id;
         this.dmp = new diff_match_patch();
     }
-
 
     open(): Document {
         // Debug.
@@ -57,6 +59,7 @@ export default class MemoryDocument implements Document {
         // Debug.
         console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is removed.`);
 
+        this._clientIdToCursor.delete(uid);
         return this._clientIdToShadow.delete(uid);
     }
 
@@ -86,6 +89,13 @@ export default class MemoryDocument implements Document {
         this._clientIdToShadow.set(uid, patchedShadow);
 
         return true;
+    }
+
+    updateClientCursor(uid: string, cursor: CursorPosition): void {
+        this._clientIdToCursor.set(uid, cursor);
+
+        // Debug.
+        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} updated cursor: ${cursor.row}, ${cursor.column}.`);
     }
 
 }

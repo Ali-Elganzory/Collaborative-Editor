@@ -1,14 +1,19 @@
 import { Diff } from "diff-match-patch";
 
-import Document from "../document/Document";
+import Document, { Clients, CursorPosition } from "../document/Document";
 
-
-export type SendEditsToClientCallback = (edits: string) => void
-export type ClientSentEditsCallback = (edits: string) => void
+export type ClientEdits = { cursor: CursorPosition, patch: string }
+export type ServerEdits = { clients: Clients, patch: string }
+export type SendEditsToClientCallback = (edits: ServerEdits) => void
+export type ClientSentEditsCallback = (edits: ClientEdits) => void
 /**
  * a tuple of the initial document content and a callback for future user edits, respectively.
  */
-export type ClientEnteredSessionResponse = [initialContent: string, clientSentEditsCallback: ClientSentEditsCallback];
+export type ClientEnteredSessionResponse = {
+    initialContent: string,
+    clients: Clients,
+    clientSentEditsCallback: ClientSentEditsCallback,
+};
 
 
 export default interface Synchronizer {

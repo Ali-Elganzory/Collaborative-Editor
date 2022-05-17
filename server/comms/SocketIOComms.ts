@@ -2,8 +2,17 @@ import { Diff } from "diff-match-patch";
 import sio from "socket.io";
 
 import Comms from "./Comms";
-import Synchronizer, { ClientEnteredSessionResponse, ClientSentEditsCallback, SendEditsToClientCallback } from "../synchronizer/Synchronizer";
+import Synchronizer, {
+    ClientEnteredSessionResponse,
+    ClientSentEditsCallback,
+    SendEditsToClientCallback,
+} from "../synchronizer/Synchronizer";
+import { Clients, CursorPosition } from "../document/Document";
 
+type InitialDocumentState = {
+    initialContent: string,
+    clients: Clients,
+};
 
 /**
  * Comms implementation using Socket.IO library,
@@ -29,7 +38,7 @@ export default class SocketIOComms implements Comms {
                 // Receive document id.
                 let documentId: bigint;
                 socket.once('document_id',
-                    (id: string, callback: Function) => {
+                    (id: string, callback: ((state: InitialDocumentState) => any)) => {
                         // parse document id.
                         documentId = BigInt(id);
 
@@ -50,7 +59,7 @@ export default class SocketIOComms implements Comms {
 
                         // Callback for sending updates to this
                         // user.
-                        const sendEditsToClient: SendEditsToClientCallback = (edits: string) => {
+                        const sendEditsToClient: SendEditsToClientCallback = (edits) => {
                             socket.emit(this.editsEventName, edits);
                         }
 
@@ -74,7 +83,9 @@ export default class SocketIOComms implements Comms {
                             return;
                         }
 
-                        const clientSentEditsCallback = (response as ClientEnteredSessionResponse)[1];
+                        const successfulResponse = (response as ClientEnteredSessionResponse);
+
+                        const clientSentEditsCallback = successfulResponse.clientSentEditsCallback;
 
                         // Register the listener for user's 
                         // incoming edits.
@@ -82,7 +93,11 @@ export default class SocketIOComms implements Comms {
 
                         // Send back initial document content
                         // (acknowledgment).
-                        callback((response as ClientEnteredSessionResponse)[0]);
+                        const initialDocumentState = {
+                            initialContent: successfulResponse.initialContent,
+                            clients: successfulResponse.clients,
+                        };
+                        callback(initialDocumentState);
 
                         // Remove client session when disconnected.
                         socket.once('disconnect', () => {

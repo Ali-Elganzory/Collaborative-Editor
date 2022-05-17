@@ -2,7 +2,6 @@ import { Model, DataTypes } from 'sequelize';
 
 import sequelize from './db_connection';
 
-
 class EditorDocument extends Model {
     declare id: BigInt;
     declare title: string;

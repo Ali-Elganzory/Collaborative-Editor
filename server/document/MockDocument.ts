@@ -1,7 +1,6 @@
-import sio from "socket.io";
-import { Diff, diff_match_patch } from "diff-match-patch";
+import { diff_match_patch } from "diff-match-patch";
 
-import Document from "./Document";
+import Document, { Clients, CursorPosition } from "./Document";
 
 
 /**
@@ -13,17 +12,18 @@ export default class MockDocument implements Document {
     private _isOpen: boolean = false;
     private _content: string = '';
     private _shadows: string[] = [];
+    private _clientIdToCursor: Map<string, CursorPosition> = new Map<string, CursorPosition>();
 
     get isOpen(): boolean { return this._isOpen; };
     get noClients(): boolean { return this._shadows.length == 0; }
     get content(): string { return `${this._content}`; };
     get shadows(): ReadonlyArray<string> { return this._shadows; };
-
+    get clientIdToCursor(): Map<string, CursorPosition> { return this._clientIdToCursor; }
+    get clients(): Clients { return Array.from(this._clientIdToCursor, ([id, cursor]) => ({ id, cursor })); }
 
     constructor(id: bigint) {
         this.id = id;
     }
-
 
     open(): Document {
         console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
@@ -60,6 +60,10 @@ export default class MockDocument implements Document {
     patch(uid: string, edits: string): boolean {
         console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} patched diffs: ${edits}.`);
         return true;
+    }
+
+    updateClientCursor(uid: string, cursor: CursorPosition): void {
+        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} updated cursor: ${cursor}.`);
     }
 
 }

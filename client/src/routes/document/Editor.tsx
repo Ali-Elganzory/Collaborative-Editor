@@ -4,8 +4,11 @@ import AceEditor from "react-ace";
 import ReactAce from "react-ace/lib/ace";
 import "ace-builds/webpack-resolver";
 
-import EditorDocument, { DocumentInfo } from "../../models/EditorDocument";
+import EditorDocument, { DocumentInfo, InitialDocumentState, ServerEdits, Clients, ClientEdits } from "../../models/EditorDocument";
 import Loader from "../../components/Loader";
+import { textToHexColor } from "../../helpers/string";
+import "./Editor.css"
+import AppBar from "../../components/AppBar";
 
 
 const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
@@ -13,16 +16,18 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
     const documentInfo: DocumentInfo = props.documentInfo;
     const apiUrl = 'http://localhost:8000/editor';
     const editsEventName = 'edits';
-    const updateInterval = 1000;
+    const updateInterval = 2000;
 
     // State.
     const [editorDocument, setEditorDocument] = useState(new EditorDocument(documentInfo.id, documentInfo.title, ''));
     const [loadedDoc, setLoadedDoc] = useState(false);
+    const [remoteClients, setRemoteClients] = useState<Clients>([]);
     const [socket, setSocket] = useState(io(apiUrl));
     const editorElementRef = useRef<ReactAce>(null);
 
-    const onDocumentContentReceived = (content: string) => {
-        setEditorDocument(oldEditorDocument => new EditorDocument(oldEditorDocument.id, oldEditorDocument.title, content));
+    const onInitialDocumentStateReceived = (initialState: InitialDocumentState) => {
+        setEditorDocument(oldEditorDocument => new EditorDocument(oldEditorDocument.id, oldEditorDocument.title, initialState.initialContent));
+        setRemoteClients(initialState.clients);
         setLoadedDoc(true);
     }
 
@@ -34,7 +39,7 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
             socket.emit(
                 'document_id',
                 editorDocument.id,
-                onDocumentContentReceived,
+                onInitialDocumentStateReceived,
             );
         });
 
@@ -53,23 +58,35 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
             // Sync.
             timer = setInterval(() => {
                 // If document is loaded.
-                const editorContent = editorElementRef.current?.editor.getValue();
+                const editor = editorElementRef.current!.editor;
+                const editorContent = editor.getValue();
                 if (editorContent != null) {
                     const edits = editorDocument.diff(editorContent);
+                    const currentCursorPos = editor!.getCursorPosition();
+                    // Debug.
                     // console.log('sent edits: ' + edits)
-                    socket.emit(editsEventName, edits);
+                    const clientEdits: ClientEdits = { patch: edits, cursor: currentCursorPos };
+                    socket.emit(editsEventName, clientEdits);
                 }
             }, updateInterval);
 
             // React to incoming edits.
-            socket.on(editsEventName, (edits: string) => {
+            socket.on(editsEventName, (edits: ServerEdits) => {
+                // Debug.
                 // console.log('received edits: ' + edits)
                 const editor = editorElementRef.current?.editor;
-                const updatedContent: string = editorDocument.patch(edits, editor?.getValue() ?? '');
-                const currentCursorPos = editor?.getCursorPosition();
-                editor?.setValue(updatedContent);
-                editor?.moveCursorToPosition(currentCursorPos ?? { row: 0, column: 0 });
-                editor?.clearSelection();
+                const doc = editor!.session.getDocument();
+                const currentContent = editor!.getValue();
+                const currentCursorPos = editor!.getCursorPosition();
+                const currentCursorLocation = doc.positionToIndex(currentCursorPos);
+                const { cursor, patchedContent } = editorDocument.patchWithCursor(edits.patch, currentContent, currentCursorLocation);
+                const cursorPos = doc.indexToPosition(cursor, 0);
+                editor!.setValue(patchedContent);
+                editor!.moveCursorToPosition(cursorPos);
+                editor!.clearSelection();
+                // Debug.
+                // console.log('Remote clients: ' + JSON.stringify(edits));
+                setRemoteClients(edits.clients);
             })
 
             // Cleaner.
@@ -78,42 +95,98 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
                 clearInterval(timer);
             };
         }
-    }, [editorDocument, loadedDoc])
+    }, [editorDocument, loadedDoc]);
 
+    const avatarCount = Math.min(13, remoteClients.length);
+    const avatarGridCols = avatarCount + 1;
 
     return (
-        <div className="bg-gray-200 p-6 w-full h-full">
+        <div className="w-full h-full flex flex-col">
+            <AppBar
+                leading={
+                    documentInfo.title
+                }
+                trailing={''}
+            />
 
-            {
-                !loadedDoc && (
-                    <Loader />
-                )
-            }
+            < div className="bg-gray-200 px-6 pt-6 w-full flex-grow" >
 
-            {
-                loadedDoc && (
-                    <AceEditor
-                        ref={editorElementRef}
+                {
+                    !loadedDoc && (
+                        <Loader />
+                    )
+                }
 
-                        value={editorDocument.content}
+                {
+                    loadedDoc && (
+                        <AceEditor
+                            ref={editorElementRef}
 
-                        setOptions={{
-                            showGutter: false,
-                            highlightActiveLine: false,
-                            showPrintMargin: false,
-                            wrapBehavioursEnabled: true,
-                            fontSize: 16,
-                        }}
+                            value={editorDocument.content}
 
-                        height='100%'
-                        width='100%'
+                            setOptions={{
+                                showGutter: false,
+                                highlightActiveLine: false,
+                                showPrintMargin: false,
+                                wrapBehavioursEnabled: true,
+                                fontSize: 16,
+                            }}
 
-                        className="bg-gray-200"
-                    />
-                )
-            }
+                            height='100%'
+                            width='100%'
 
-        </div>
+                            className="bg-gray-200"
+                        />
+                    )
+                }
+
+                {
+                    loadedDoc && editorElementRef.current?.editor && (
+                        <div>
+                            {
+                                remoteClients.map(
+                                    (e) => {
+                                        const editor = editorElementRef.current?.editor;
+                                        const screenPosition = editor!.renderer.textToScreenCoordinates(e.cursor.row, e.cursor.column);
+                                        const bgColor = textToHexColor(e.id);
+
+                                        return (
+                                            <div key={e.id}>
+                                                { /* Simulated remote client cursor.*/}
+                                                <div
+                                                    className="absolute w-1 h-5 animate-cursor-blink"
+                                                    style={{
+                                                        backgroundColor: bgColor,
+                                                        left: screenPosition.pageX,
+                                                        top: screenPosition.pageY,
+                                                    }}>
+                                                </div>
+
+                                                {/*  Overlay for tooltip. */}
+                                                <div
+                                                    className="absolute w-1 h-5 tooltip"
+                                                    style={{
+                                                        left: screenPosition.pageX,
+                                                        top: screenPosition.pageY,
+                                                    }}>
+                                                    <span
+                                                        className="tooltiptext tooltip-bottom"
+                                                        style={{
+                                                            backgroundColor: bgColor,
+                                                        }}>
+                                                        {e.id}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                            }
+                        </div>
+                    )
+                }
+
+            </div >
+        </div >
     );
 
 }

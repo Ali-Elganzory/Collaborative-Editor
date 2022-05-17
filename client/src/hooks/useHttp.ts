@@ -31,7 +31,7 @@ function useHttp(url: string, method: HttpMethod, payload?: any) {
                     url: baseApiUrl + '/editor' + url,
                 });
                 setData(response.data);
-            } catch (error: AxiosError | any) {
+            } catch (error: any) {
                 setError(error.message);
             } finally {
                 setLoaded(true);

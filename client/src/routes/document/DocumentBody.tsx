@@ -43,12 +43,6 @@ const DocumentBody: React.FC<{ id: bigint }> = (props) => {
                 // If document exists view page content.
                 loaded && !error && (
                     <div className="w-full h-full flex flex-col">
-                        <AppBar
-                            leading={
-                                (data! as any).data.title
-                            }
-                            trailing={''}
-                        />
 
                         {
                             // Document editor.
