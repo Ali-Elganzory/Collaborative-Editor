@@ -9,6 +9,7 @@ import Loader from "../../components/Loader";
 import { textToHexColor } from "../../helpers/string";
 import "./Editor.css"
 import AppBar from "../../components/AppBar";
+import Identicon from "../../components/Identicon";
 
 
 const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
@@ -98,7 +99,7 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
     }, [editorDocument, loadedDoc]);
 
     const avatarCount = Math.min(13, remoteClients.length);
-    const avatarGridCols = avatarCount + 1;
+    const hiddenAvatarCount = Math.max(0, remoteClients.length - avatarCount);
 
     return (
         <div className="w-full h-full flex flex-col">
@@ -106,7 +107,48 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
                 leading={
                     documentInfo.title
                 }
-                trailing={''}
+                trailing={(
+                    <div className="flex flex-row">
+                        <div className="-space-x-4 mr-2">
+                            {
+                                remoteClients.slice(0, avatarCount).map((e, i) => {
+                                    const clientColor = textToHexColor(e.id);
+
+                                    return (
+                                        <div className="tooltip">
+                                            <Identicon
+                                                key={e.id}
+                                                string={e.id}
+                                                size={32}
+                                                fg={clientColor}
+                                                bg="gray"
+                                                className="inline object-cover w-8 h-8 
+                                            border-2 border-white rounded-full"
+                                            />
+
+                                            <span
+                                                className="tooltiptext tooltip-bottom"
+                                                style={{
+                                                    backgroundColor: clientColor,
+                                                }}>
+                                                {e.id}
+                                            </span>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+
+                        {
+                            (hiddenAvatarCount > 0) && (
+                                <div className=" w-8 h-8 border-2 border-gray-200 rounded-full text-center">
+                                    {`+${hiddenAvatarCount}`}
+                                </div>
+                            )
+                        }
+                    </div>
+                )
+                }
             />
 
             < div className="bg-gray-200 px-6 pt-6 w-full flex-grow" >
@@ -164,18 +206,20 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
 
                                                 {/*  Overlay for tooltip. */}
                                                 <div
-                                                    className="absolute w-1 h-5 tooltip"
+                                                    className="absolute w-1 h-5"
                                                     style={{
                                                         left: screenPosition.pageX,
                                                         top: screenPosition.pageY,
                                                     }}>
-                                                    <span
-                                                        className="tooltiptext tooltip-bottom"
-                                                        style={{
-                                                            backgroundColor: bgColor,
-                                                        }}>
-                                                        {e.id}
-                                                    </span>
+                                                    <div className="relative tooltip w-1 h-5">
+                                                        <span
+                                                            className="tooltiptext tooltip-bottom"
+                                                            style={{
+                                                                backgroundColor: bgColor,
+                                                            }}>
+                                                            {e.id}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         );
