@@ -49,13 +49,13 @@ export default class SocketIOComms implements Comms {
                             socket.disconnect();
 
                             // Debug.
-                            console.log(`[${this.constructor.name}] User: ${socket.id} didn't send a callback. Document: ${documentId}.`);
+                            // console.log(`[${this.constructor.name}] User: ${socket.id} didn't send a callback. Document: ${documentId}.`);
 
                             return;
                         }
 
                         // Debug.
-                        console.log(`[${this.constructor.name}] User: ${socket.id}. Document: ${documentId}.`);
+                        // console.log(`[${this.constructor.name}] User: ${socket.id}. Document: ${documentId}.`);
 
                         // Callback for sending updates to this
                         // user.
@@ -78,7 +78,7 @@ export default class SocketIOComms implements Comms {
                             socket.disconnect();
 
                             // Debug.
-                            console.log(`[${this.constructor.name}] User: ${socket.id} couldn't be added. Document: ${documentId}.`);
+                            // console.log(`[${this.constructor.name}] User: ${socket.id} couldn't be added. Document: ${documentId}.`);
 
                             return;
                         }

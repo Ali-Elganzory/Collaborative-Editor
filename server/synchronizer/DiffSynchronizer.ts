@@ -24,7 +24,7 @@ export default class DiffSynchronizer implements Synchronizer {
 
     clientEnteredSession(uid: string, documentId: bigint, sendEditsToClient: SendEditsToClientCallback): false | ClientEnteredSessionResponse {
         // Debug.
-        console.log(`[${this.constructor.name}] User: ${uid}. Document: ${documentId}.`);
+        // console.log(`[${this.constructor.name}] User: ${uid}. Document: ${documentId}.`);
 
         // Check the document openness state.
         // If not open, open it.
@@ -49,7 +49,7 @@ export default class DiffSynchronizer implements Synchronizer {
         // Callback for client's incoming edits.
         const clientSentEditsCallback: ClientSentEditsCallback = (edits: ClientEdits) => {
             // Debug.
-            console.log(`[${this.constructor.name}] User: ${uid}. Document: ${documentId}. Edits: ${edits}`);
+            // console.log(`[${this.constructor.name}] User: ${uid}. Document: ${documentId}. Edits: ${edits}`);
 
             // Apply edits, update cursor, and send updates back. 
             const document: Document = this._documentIdToDocument.get(documentId)!;

@@ -4,15 +4,17 @@ import { Params, useParams } from "react-router-dom"
 import { HttpMethod, useHttp } from "../../hooks/useHttp";
 import NewDocBtn from "../../components/NewDocBtn";
 import Loader from "../../components/Loader";
-import AppBar from "../../components/AppBar";
 import Editor from "./Editor";
 
 
-const DocumentBody: React.FC<{ id: bigint }> = (props) => {
+const DocumentBody: React.FC<{ id: bigint }> = ({ id }) => {
     // State.
-    const id: bigint = props.id;
+    const { send, cancel, data, error, loaded } = useHttp(`/documents/${id}`, HttpMethod.GET);
 
-    const { cancel, data, error, loaded } = useHttp(`/documents/${id}`, HttpMethod.GET);
+    useEffect(() => {
+        send();
+    }, [id]);
+
 
     return (
         <div className="w-full h-full">

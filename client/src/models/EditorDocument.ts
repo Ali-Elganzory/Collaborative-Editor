@@ -101,11 +101,17 @@ class EditorDocument {
         let elapsedOffset = 0;
         const deltaDiffs = this.dmp.diff_main(newContent, patchedContent);
         for (const diff of deltaDiffs) {
-            const offset = Math.min(elapsedOffset + diff[1].length, cursor);
-            elapsedOffset += offset;
-            deltaOffset += diff[0] * offset;
-
-            if (elapsedOffset >= cursor) {
+            let change = 0;
+            if (diff[0] === 0) {
+                change = diff[1].length;
+                elapsedOffset = Math.min(elapsedOffset + change, cursor)
+            }
+            else {
+                change = diff[1].length;
+                deltaOffset += diff[0] * change;
+            }
+            
+            if (elapsedOffset > cursor) {
                 break;
             }
         }

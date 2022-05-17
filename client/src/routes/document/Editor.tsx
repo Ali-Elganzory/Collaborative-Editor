@@ -109,15 +109,16 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
                 }
                 trailing={(
                     <div className="flex flex-row">
-                        <div className="-space-x-4 mr-2">
+                        <div className="-space-x-4 mr-6">
                             {
                                 remoteClients.slice(0, avatarCount).map((e, i) => {
                                     const clientColor = textToHexColor(e.id);
 
                                     return (
-                                        <div className="tooltip">
+                                        <div
+                                            key={e.id}
+                                            className="tooltip">
                                             <Identicon
-                                                key={e.id}
                                                 string={e.id}
                                                 size={32}
                                                 fg={clientColor}
@@ -188,8 +189,16 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
                             {
                                 remoteClients.map(
                                     (e) => {
-                                        const editor = editorElementRef.current?.editor;
-                                        const screenPosition = editor!.renderer.textToScreenCoordinates(e.cursor.row, e.cursor.column);
+                                        const editor = editorElementRef.current!.editor;
+                                        const isVisible = editor.isRowVisible(e.cursor.row);
+
+                                        if (!isVisible) {
+                                            return (
+                                                <div className="hidden"></div>
+                                            );
+                                        }
+
+                                        const screenPosition = editor.renderer.textToScreenCoordinates(e.cursor.row, e.cursor.column);
                                         const bgColor = textToHexColor(e.id);
 
                                         return (

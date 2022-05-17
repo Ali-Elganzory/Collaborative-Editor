@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { HttpMethod, useHttp } from "../../hooks/useHttp";
 import AppBar from "../../components/AppBar";
 import NewDocBtn from "../../components/NewDocBtn";
@@ -11,7 +13,11 @@ export default function Home() {
     const bodyVerticalPadding = ' py-4 ';
 
     // State.
-    const { cancel, data, error, loaded } = useHttp('/documents', HttpMethod.GET);
+    const { send, cancel, data, error, loaded } = useHttp('/documents', HttpMethod.GET);
+
+    useEffect(() => {
+        send();
+    }, []);
 
 
     return (

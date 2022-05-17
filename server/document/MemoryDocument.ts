@@ -32,7 +32,7 @@ export default class MemoryDocument implements Document {
 
     open(): Document {
         // Debug.
-        console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
+        // console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
 
         this._isOpen = true;
         return this;
@@ -44,7 +44,7 @@ export default class MemoryDocument implements Document {
 
     addClient(uid: string): string | false {
         // Debug.
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is added.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is added.`);
 
         // Check the client existence.
         // If not added, add.
@@ -57,7 +57,7 @@ export default class MemoryDocument implements Document {
 
     removeClient(uid: string): boolean {
         // Debug.
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is removed.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is removed.`);
 
         this._clientIdToCursor.delete(uid);
         return this._clientIdToShadow.delete(uid);
@@ -65,7 +65,7 @@ export default class MemoryDocument implements Document {
 
     diff(uid: string): string {
         // Debug.
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} requested diffs.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} requested diffs.`);
 
         const shadow = this._clientIdToShadow.get(uid)!;
         const diffs: Diff[] = this.dmp.diff_main(shadow, this._content);
@@ -79,7 +79,7 @@ export default class MemoryDocument implements Document {
 
     patch(uid: string, edits: string): boolean {
         // Debug.
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} patched diffs: ${edits}.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} patched diffs: ${edits}.`);
 
         const shadow = this._clientIdToShadow.get(uid)!;
         const patches: patch_obj[] = this.dmp.patch_fromText(edits);
@@ -95,7 +95,7 @@ export default class MemoryDocument implements Document {
         this._clientIdToCursor.set(uid, cursor);
 
         // Debug.
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} updated cursor: ${cursor.row}, ${cursor.column}.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} updated cursor: ${cursor.row}, ${cursor.column}.`);
     }
 
 }

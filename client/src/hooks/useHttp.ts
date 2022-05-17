@@ -21,11 +21,15 @@ function useHttp(url: string, method: HttpMethod, payload?: any) {
         controllerRef.current.abort();
     };
 
-    useEffect(() => {
+    const send = (data?: any) => {
+        setData(null);
+        setLoaded(false);
+        setError("");
+
         (async () => {
             try {
                 const response = await axios.request({
-                    data: payload,
+                    data: data ?? payload,
                     signal: controllerRef.current.signal,
                     method: method,
                     url: baseApiUrl + '/editor' + url,
@@ -37,13 +41,9 @@ function useHttp(url: string, method: HttpMethod, payload?: any) {
                 setLoaded(true);
             }
         })();
-    }, [
-        url,
-        method,
-        payload,
-    ]);
+    }
 
-    return { cancel, data, error, loaded };
+    return { send, cancel, data, error, loaded };
 }
 
 export { HttpMethod, useHttp };

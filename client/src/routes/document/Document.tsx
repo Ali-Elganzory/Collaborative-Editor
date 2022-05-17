@@ -22,7 +22,7 @@ const Document: React.FC = () => {
                 setErrorParsingId(true);
             }
         },
-        []
+        [params]
     );
 
 

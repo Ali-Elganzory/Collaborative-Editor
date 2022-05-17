@@ -26,7 +26,7 @@ export default class MockDocument implements Document {
     }
 
     open(): Document {
-        console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
+        // console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
         this._isOpen = true;
         return this;
     }
@@ -36,18 +36,18 @@ export default class MockDocument implements Document {
     }
 
     addClient(uid: string): string | false {
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is added.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is added.`);
         this._isOpen = true;
         return 'Cat';
     }
 
     removeClient(uid: string): boolean {
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is removed.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} is removed.`);
         return true;
     }
 
     diff(uid: string): string {
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} requested diffs.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} requested diffs.`);
         const dmp = new diff_match_patch();
         const patches = dmp.patch_make([
             [0, "edit 1"],
@@ -58,12 +58,12 @@ export default class MockDocument implements Document {
     }
 
     patch(uid: string, edits: string): boolean {
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} patched diffs: ${edits}.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} patched diffs: ${edits}.`);
         return true;
     }
 
     updateClientCursor(uid: string, cursor: CursorPosition): void {
-        console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} updated cursor: ${cursor}.`);
+        // console.log(`[${this.constructor.name}] Document: ${this.id}. User ${uid} updated cursor: ${cursor}.`);
     }
 
 }
