@@ -5,6 +5,7 @@ import http from "http";
 import bodyParser from 'body-parser';
 import cors from "cors";
 import sio from "socket.io";
+import path from "path";
 
 // App dependencies.
 import SocketIOComms from "./comms/SocketIOComms";
@@ -49,22 +50,24 @@ const io: sio.Server = new sio.Server(server, { cors: { origin: whitelist } });
  * Routes.
  */
 
-// Frontend.
-app.get('/', (req: Request, res: Response) => {
-    res.redirect('/editor');
-});
-
-app.get('/editor', (req: Request, res: Response) => {
-    res.send("Not yet implemented.");
-});
-
 // Backend API.
 
 // Import routers.
 let editorRouter = require('./routes/editor');
 
-// User routers.
+// Editor routers.
 app.use('/api/editor', editorRouter);
+
+
+// Frontend.
+
+// Have Node serve the files for our built React app
+app.use(express.static(path.resolve(__dirname, '../../client/build')));
+
+// All other GET requests not handled before will return our React app.
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../../client/build', 'index.html'));
+});
 
 
 /**

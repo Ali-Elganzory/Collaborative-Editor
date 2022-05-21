@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import axios, { AxiosError } from "axios";
 
 // API configuration.
-const baseApiUrl: string = 'http://localhost:8000/api';
+const baseApiUrl: string = process.env.REACT_APP_API_ADDRESS + '/api';
 
 enum HttpMethod {
     GET = 'GET',

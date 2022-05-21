@@ -15,7 +15,7 @@ import Identicon from "../../components/Identicon";
 const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
 
     const documentInfo: DocumentInfo = props.documentInfo;
-    const apiUrl = 'http://localhost:8000/editor';
+    const commsApiUrl = process.env.REACT_APP_API_ADDRESS + '/editor';
     const editsEventName = 'edits';
     const updateInterval = 2000;
 
@@ -23,7 +23,7 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
     const [editorDocument, setEditorDocument] = useState(new EditorDocument(documentInfo.id, documentInfo.title, ''));
     const [loadedDoc, setLoadedDoc] = useState(false);
     const [remoteClients, setRemoteClients] = useState<Clients>([]);
-    const [socket, setSocket] = useState(io(apiUrl));
+    const [socket, setSocket] = useState(io(commsApiUrl));
     const editorElementRef = useRef<ReactAce>(null);
 
     const onInitialDocumentStateReceived = (initialState: InitialDocumentState) => {
