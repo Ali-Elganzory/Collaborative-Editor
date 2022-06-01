@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import AceEditor from "react-ace";
 import ReactAce from "react-ace/lib/ace";
 import "ace-builds/webpack-resolver";
+import { Range } from "ace-builds";
 
 import EditorDocument, { DocumentInfo, InitialDocumentState, ServerEdits, Clients, ClientEdits } from "../../models/EditorDocument";
 import Loader from "../../components/Loader";
@@ -56,7 +57,7 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
             // Timer reference.
             let timer: NodeJS.Timeout | undefined;
 
-            // Sync.
+            // Sync (send edits).
             timer = setInterval(() => {
                 // If document is loaded.
                 const editor = editorElementRef.current!.editor;
@@ -64,8 +65,6 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
                 if (editorContent != null) {
                     const edits = editorDocument.diff(editorContent);
                     const currentCursorPos = editor!.getCursorPosition();
-                    // Debug.
-                    // console.log('sent edits: ' + edits)
                     const clientEdits: ClientEdits = { patch: edits, cursor: currentCursorPos };
                     socket.emit(editsEventName, clientEdits);
                 }
@@ -73,20 +72,35 @@ const Editor: React.FC<{ documentInfo: DocumentInfo }> = (props) => {
 
             // React to incoming edits.
             socket.on(editsEventName, (edits: ServerEdits) => {
-                // Debug.
-                // console.log('received edits: ' + edits)
                 const editor = editorElementRef.current?.editor;
                 const doc = editor!.session.getDocument();
+
+                // Current state.
                 const currentContent = editor!.getValue();
                 const currentCursorPos = editor!.getCursorPosition();
                 const currentCursorLocation = doc.positionToIndex(currentCursorPos);
+                const currentSelectionRange = editor!.selection.getRange().clone();
+
+                // Patch textual edits.
                 const { cursor, patchedContent } = editorDocument.patchWithCursor(edits.patch, currentContent, currentCursorLocation);
-                const cursorPos = doc.indexToPosition(cursor, 0);
+
+                // Update content.
                 editor!.setValue(patchedContent);
-                editor!.moveCursorToPosition(cursorPos);
-                editor!.clearSelection();
-                // Debug.
-                // console.log('Remote clients: ' + JSON.stringify(edits));
+
+                // Update cursor.
+                const cursorPos = doc.indexToPosition(cursor, 0);
+                
+                // Update selection.
+                const deltaRow = (cursorPos.row - currentCursorPos.row);
+                const deltaColumn = (cursorPos.column - currentCursorPos.column);
+                const selectionRange = new Range(
+                    currentSelectionRange.start.row + deltaRow, currentSelectionRange.start.column + deltaColumn,
+                    currentSelectionRange.end.row + deltaRow, currentSelectionRange.end.column + deltaColumn,
+                );
+                const reverse: boolean = selectionRange.isStart(cursorPos.row, cursorPos.column);
+                editor!.selection.setRange(selectionRange, reverse);
+
+                // Update active collaborators.
                 setRemoteClients(edits.clients);
             })
 
