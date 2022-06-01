@@ -77,8 +77,8 @@ class EditorDocument {
     public patchWithCursor(diffs: string, newContent: string, cursor: number): PatchWithCursorResult {
         // Patch edits.
         const patches: patch_obj[] = this.dmp.patch_fromText(diffs);
-        const [patchedContent, resultsContent] = this.dmp.patch_apply(patches, newContent);
-        const [patchedShadow, resultsShadow] = this.dmp.patch_apply(patches, this._shadow);
+        const [patchedContent, _] = this.dmp.patch_apply(patches, newContent);
+        const [patchedShadow, __] = this.dmp.patch_apply(patches, this._shadow);
 
         // Cursor preservation.
         // Algorithm: Context Matching with Absolute Referenced Offsets.
@@ -91,7 +91,7 @@ class EditorDocument {
             contextEnd = Math.min(contextEnd + (-contextStart), newContent.length);
             contextStart = 0;
         } else if (contextEnd > newContent.length) {
-            contextStart = Math.max(contextStart - (newContent.length - contextStart), 0);
+            contextStart = Math.max(contextStart - (contextEnd - newContent.length), 0);
             contextEnd = newContent.length;
         }
         const context = newContent.substring(contextStart, contextEnd);
@@ -117,8 +117,10 @@ class EditorDocument {
         }
         const updatedAbsoluteOffset = absoluteOffset + deltaOffset;
         // 3. Restore the points on the new text based on the context and delta adjusted offset (second step of context matching).
-        const matchedContextLocation = this.dmp.match_main(patchedContent, context, updatedAbsoluteOffset);
-        const preservedCursorLocation = matchedContextLocation + (absoluteOffset - contextStart);
+        const preContextLength = (absoluteOffset - contextStart);
+        const matchedContextLocation = this.dmp.match_main(patchedContent, context, updatedAbsoluteOffset - preContextLength);
+        const preservedCursorLocation = matchedContextLocation + preContextLength;
+        // console.log(`${cursor}, ${contextEnd - contextStart}, ${context}, ${updatedAbsoluteOffset}, ${preservedCursorLocation}`);
 
         this._content = patchedContent;
         this._shadow = patchedShadow;
