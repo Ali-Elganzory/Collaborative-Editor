@@ -10,6 +10,11 @@ remote clients on the internet. The system supports various usability considerat
 https://user-images.githubusercontent.com/50919012/175041277-eceab0c4-402a-4e73-aac8-4b3fd5d59a9a.mp4
 
 
+## Requirements
+- Node runtime.
+- Yarn package manager.
+
+
 ## Running the app
 
 **Method 1**
