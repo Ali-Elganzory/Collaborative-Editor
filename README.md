@@ -6,6 +6,10 @@ This project presents a reliable and robust real-time general document collabora
 remote clients on the internet. The system supports various usability considerations (i.e., view of active peers, cursor preservation, and consistency across all clients.
 
 
+## Demo
+https://user-images.githubusercontent.com/50919012/175041277-eceab0c4-402a-4e73-aac8-4b3fd5d59a9a.mp4
+
+
 ## Running the app
 
 **Method 1**
