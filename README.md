@@ -21,3 +21,7 @@ https://user-images.githubusercontent.com/50919012/175041277-eceab0c4-402a-4e73-
 3. Run `yarn build` to generate production files.
 4. Run `yarn start` to start the app on your local machine.
 5. Access the app on http://localhost:8000.
+
+
+## Full Report
+[Report PDF](https://github.com/Ali-Elganzory/Collaborative-Editor/blob/main/docs/Project%20Report.pdf)
