@@ -14,8 +14,8 @@ export default interface Document {
     get clientIdToCursor(): Map<string, CursorPosition>;
     get clients(): Clients;
 
-    open(): Document;
-    close(): boolean;
+    open(): Promise<Document | false>;
+    close(): Promise<boolean>;
 
     addClient(uid: string): false | string;
     removeClient(uid: string): boolean;

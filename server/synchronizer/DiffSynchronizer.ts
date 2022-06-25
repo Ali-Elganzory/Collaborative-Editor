@@ -9,6 +9,7 @@ import Synchronizer, {
 } from "../synchronizer/Synchronizer";
 import Document, { Clients, CursorPosition } from "../document/Document";
 import MemoryDocument from "../document/MemoryDocument";
+import DatabaseDocument from "../document/DatabaseDocument";
 
 
 /**
@@ -22,15 +23,21 @@ export default class DiffSynchronizer implements Synchronizer {
     get documents(): ReadonlyArray<Document> { return Array.from(this._documentIdToDocument.values()); }
 
 
-    clientEnteredSession(uid: string, documentId: bigint, sendEditsToClient: SendEditsToClientCallback): false | ClientEnteredSessionResponse {
+    async clientEnteredSession(uid: string, documentId: bigint, sendEditsToClient: SendEditsToClientCallback): Promise<false | ClientEnteredSessionResponse> {
         // Debug.
         // console.log(`[${this.constructor.name}] User: ${uid}. Document: ${documentId}.`);
 
         // Check the document openness state.
         // If not open, open it.
         if (!this._documentIdToDocument.has(documentId)) {
-            const document: Document = new MemoryDocument(documentId);
-            document.open();
+            const document: Document = new DatabaseDocument(documentId);
+            const opened = await document.open();
+
+            // Check if the document is opended successfully.
+            if (opened === false) {
+                return false;
+            }
+
             this._documentIdToDocument.set(documentId, document);
         }
 
@@ -64,7 +71,7 @@ export default class DiffSynchronizer implements Synchronizer {
         return { initialContent, clients, clientSentEditsCallback };
     }
 
-    clientLeftSession(uid: string, documentId: bigint): boolean {
+    async clientLeftSession(uid: string, documentId: bigint): Promise<boolean> {
         // Remove client from document.
         const document: Document | undefined = this._documentIdToDocument.get(documentId);
         if (document == null) {
@@ -76,7 +83,7 @@ export default class DiffSynchronizer implements Synchronizer {
         // Close document if no clients are
         // collaborating.
         if (document.noClients) {
-            document.close();
+            await document.close();
             this._documentIdToDocument.delete(document.id);
         }
 

@@ -5,6 +5,7 @@ import AppBar from "../../components/AppBar";
 import NewDocBtn from "../../components/NewDocBtn";
 import DocumentTile from "./DocumentTile";
 import Loader from "../../components/Loader";
+import EditorDocument from "../../models/EditorDocument";
 
 
 export default function Home() {
@@ -19,7 +20,6 @@ export default function Home() {
         send();
     }, []);
 
-
     return (
         <div className="flex flex-col h-full">
 
@@ -32,28 +32,43 @@ export default function Home() {
                 trailing={<NewDocBtn />}
             />
 
-            <div className={`bg-gray-200 w-full flex-grow ${sidePadding} ${bodyVerticalPadding}`}>
+            <div className={`bg-gray-200 w-full flex-grow text-center ${sidePadding} ${bodyVerticalPadding}`}>
                 {
-                    !loaded && (
-                        <Loader />
+                    (
+                        !loaded && (
+                            <Loader />
+                        )
                     )
-                }
 
-                {
-                    loaded && (error || !data) && (
-                        <div>
-                            <p>There's been an error.</p>
-                            <br />
-                            <p>{error}</p>
-                        </div>
+                    ||
+
+                    (
+                        (error || !data) && (
+                            <div>
+                                <p>There's been an error.</p>
+                                <br />
+                                <p>{error}</p>
+                            </div>
+                        )
                     )
-                }
 
-                {
-                    loaded && !error && data && (
-                        <div className="w-full h-full grid grid-cols-4 gap-8">
-                            {((data as any).data as any[]).map((e) => { return (<DocumentTile key={e.id} document={e}></DocumentTile>) })}
-                        </div>
+                    ||
+
+                    (
+                        ((data! as any).data as EditorDocument[]).length < 1 ?
+                            (
+                                <div>
+                                    <p>There are no documents.</p>
+                                    <br />
+                                    <p>Try and create a new one!</p>
+                                </div>
+                            )
+                            :
+                            (
+                                <div className="w-full h-full grid grid-cols-4 gap-8">
+                                    {((data as any).data as any[]).map((e) => { return (<DocumentTile key={e.id} document={e}></DocumentTile>) })}
+                                </div>
+                            )
                     )
                 }
             </div>

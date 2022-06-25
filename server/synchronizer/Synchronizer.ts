@@ -29,7 +29,7 @@ export default interface Synchronizer {
      * @param documentId 
      * @param sendEditsToClient 
      */
-    clientEnteredSession(uid: string, documentId: bigint, sendEditsToClient: SendEditsToClientCallback): false | ClientEnteredSessionResponse;
+    clientEnteredSession(uid: string, documentId: bigint, sendEditsToClient: SendEditsToClientCallback): Promise<false | ClientEnteredSessionResponse>;
 
     /**
      * call it whenever a users closes a session
@@ -38,6 +38,6 @@ export default interface Synchronizer {
      * @param uid user id
      * @param documentId document id
      */
-    clientLeftSession(uid: string, documentId: bigint): boolean;
+    clientLeftSession(uid: string, documentId: bigint): Promise<boolean>;
 
 }

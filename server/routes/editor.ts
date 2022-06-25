@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 
-import EditorDocument from '../models/EditorDocument';
+import DocumentModel from '../models/DocumentModel';
 
 let router: Router = Router();
 
@@ -11,7 +11,11 @@ let router: Router = Router();
 
 // Get all documents
 router.get('/documents', async (req: Request, res: Response) => {
-    const documents: EditorDocument[] = await EditorDocument.findAll();
+    const documents: DocumentModel[] = await DocumentModel.findAll(
+        {
+            attributes: ['id', 'title'],
+        },
+    );
 
     res.json({ status: 'success', data: documents, });
 });
@@ -24,8 +28,9 @@ router.post('/documents', async (req: Request, res: Response) => {
         res.status(400).json({ status: 'fail' });
     }
 
-    const newDocument: EditorDocument = await EditorDocument.create({
+    const newDocument: DocumentModel = await DocumentModel.create({
         title: documentTitle,
+        content: '',
     });
 
     res.json({ status: 'success', data: newDocument.id, });
@@ -39,8 +44,12 @@ router.get('/documents/:id', async (req: Request, res: Response) => {
         res.status(400).json({ status: 'fail' });
         return;
     }
-
-    const document: EditorDocument | null = await EditorDocument.findOne({ where: { id: documentId } });
+    
+    const document: DocumentModel | null = await DocumentModel.findOne(
+        {
+            where: { id: documentId },
+        },
+    );
 
     if (document == null) {
         res.status(400).json({ status: 'fail' });
@@ -59,7 +68,7 @@ router.delete('/documents/:id', async (req: Request, res: Response) => {
         return;
     }
 
-    await EditorDocument.destroy({ where: { id: documentId } });
+    await DocumentModel.destroy({ where: { id: documentId } });
 
     res.json({ status: 'success' });
 });

@@ -2,22 +2,24 @@ import { Model, DataTypes } from 'sequelize';
 
 import sequelize from './db_connection';
 
-class EditorDocument extends Model {
+class DocumentModel extends Model {
     declare id: BigInt;
     declare title: string;
+    declare content: string;
 }
 
-EditorDocument.init({
+DocumentModel.init({
     id: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         primaryKey: true,
     },
     title: DataTypes.STRING,
+    content: DataTypes.TEXT,
 },
     {
         sequelize,
     },
 );
 
-export default EditorDocument;
+export default DocumentModel;
