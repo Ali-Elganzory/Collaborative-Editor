@@ -1,9 +1,18 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const diff_match_patch_1 = require("diff-match-patch");
 /**
  * In-memory document: not persistant across
- * restarts.
+ * sessions.
  */
 class MemoryDocument {
     constructor(id) {
@@ -24,13 +33,17 @@ class MemoryDocument {
     get clientIdToCursor() { return this._clientIdToCursor; }
     get clients() { return Array.from(this._clientIdToCursor, ([id, cursor]) => ({ id, cursor })); }
     open() {
-        // Debug.
-        // console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
-        this._isOpen = true;
-        return this;
+        return __awaiter(this, void 0, void 0, function* () {
+            // Debug.
+            // console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
+            this._isOpen = true;
+            return this;
+        });
     }
     close() {
-        return true;
+        return __awaiter(this, void 0, void 0, function* () {
+            return true;
+        });
     }
     addClient(uid) {
         // Debug.

@@ -13,14 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const EditorDocument_1 = __importDefault(require("../models/EditorDocument"));
+const DocumentModel_1 = __importDefault(require("../models/DocumentModel"));
 let router = (0, express_1.Router)();
 /**
  * Document routes
  */
 // Get all documents
 router.get('/documents', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const documents = yield EditorDocument_1.default.findAll();
+    const documents = yield DocumentModel_1.default.findAll({
+        attributes: ['id', 'title'],
+    });
     res.json({ status: 'success', data: documents, });
 }));
 // Create a new document.
@@ -30,8 +32,9 @@ router.post('/documents', (req, res) => __awaiter(void 0, void 0, void 0, functi
     if (documentTitle == null) {
         res.status(400).json({ status: 'fail' });
     }
-    const newDocument = yield EditorDocument_1.default.create({
+    const newDocument = yield DocumentModel_1.default.create({
         title: documentTitle,
+        content: '',
     });
     res.json({ status: 'success', data: newDocument.id, });
 }));
@@ -44,7 +47,9 @@ router.get('/documents/:id', (req, res) => __awaiter(void 0, void 0, void 0, fun
         res.status(400).json({ status: 'fail' });
         return;
     }
-    const document = yield EditorDocument_1.default.findOne({ where: { id: documentId } });
+    const document = yield DocumentModel_1.default.findOne({
+        where: { id: documentId },
+    });
     if (document == null) {
         res.status(400).json({ status: 'fail' });
         return;
@@ -60,7 +65,7 @@ router.delete('/documents/:id', (req, res) => __awaiter(void 0, void 0, void 0, 
         res.status(400).json({ status: 'fail' });
         return;
     }
-    yield EditorDocument_1.default.destroy({ where: { id: documentId } });
+    yield DocumentModel_1.default.destroy({ where: { id: documentId } });
     res.json({ status: 'success' });
 }));
 module.exports = router;

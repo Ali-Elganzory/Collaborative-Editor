@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Comms implementation using Socket.IO library,
@@ -16,7 +25,7 @@ class SocketIOComms {
         this._io.on('connection', (socket) => {
             // Receive document id.
             let documentId;
-            socket.once('document_id', (id, callback) => {
+            socket.once('document_id', (id, callback) => __awaiter(this, void 0, void 0, function* () {
                 // parse document id.
                 documentId = BigInt(id);
                 // Check that the client sent a
@@ -37,7 +46,7 @@ class SocketIOComms {
                 };
                 // Notify the synchronizer of this new
                 // user session.
-                const response = synchronizer.clientEnteredSession(socket.id, documentId, sendEditsToClient);
+                const response = yield synchronizer.clientEnteredSession(socket.id, documentId, sendEditsToClient);
                 // Synchronizer failed to initialize
                 // session.
                 if (response === false) {
@@ -59,10 +68,10 @@ class SocketIOComms {
                 };
                 callback(initialDocumentState);
                 // Remove client session when disconnected.
-                socket.once('disconnect', () => {
-                    synchronizer.clientLeftSession(socket.id, documentId);
-                });
-            });
+                socket.once('disconnect', () => __awaiter(this, void 0, void 0, function* () {
+                    yield synchronizer.clientLeftSession(socket.id, documentId);
+                }));
+            }));
         });
     }
     sendEditsToClient(uid, edits) {
