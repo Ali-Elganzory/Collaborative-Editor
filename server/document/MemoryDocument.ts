@@ -6,15 +6,15 @@ import Document, { Clients, CursorPosition } from "./Document";
 
 /**
  * In-memory document: not persistant across
- * restarts.
+ * sessions.
  */
 export default class MemoryDocument implements Document {
 
     readonly id: bigint;
-    private _isOpen: boolean = false;
-    private _content: string = '';
-    private _clientIdToShadow: Map<string, string> = new Map<string, string>();
-    private _clientIdToCursor: Map<string, CursorPosition> = new Map<string, CursorPosition>();
+    protected _isOpen: boolean = false;
+    protected _content: string = '';
+    protected _clientIdToShadow: Map<string, string> = new Map<string, string>();
+    protected _clientIdToCursor: Map<string, CursorPosition> = new Map<string, CursorPosition>();
     protected dmp: diff_match_patch;
 
     get isOpen(): boolean { return this._isOpen; };
@@ -30,7 +30,7 @@ export default class MemoryDocument implements Document {
         this.dmp = new diff_match_patch();
     }
 
-    open(): Document {
+    async open(): Promise<Document | false> {
         // Debug.
         // console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
 
@@ -38,7 +38,7 @@ export default class MemoryDocument implements Document {
         return this;
     }
 
-    close(): boolean {
+    async close(): Promise<boolean> {
         return true;
     }
 

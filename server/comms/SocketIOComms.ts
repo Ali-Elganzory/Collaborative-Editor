@@ -38,7 +38,7 @@ export default class SocketIOComms implements Comms {
                 // Receive document id.
                 let documentId: bigint;
                 socket.once('document_id',
-                    (id: string, callback: ((state: InitialDocumentState) => any)) => {
+                    async (id: string, callback: ((state: InitialDocumentState) => any)) => {
                         // parse document id.
                         documentId = BigInt(id);
 
@@ -66,7 +66,7 @@ export default class SocketIOComms implements Comms {
                         // Notify the synchronizer of this new
                         // user session.
                         const response: false | ClientEnteredSessionResponse =
-                            synchronizer.clientEnteredSession(
+                            await synchronizer.clientEnteredSession(
                                 socket.id,
                                 documentId,
                                 sendEditsToClient,
@@ -100,8 +100,8 @@ export default class SocketIOComms implements Comms {
                         callback(initialDocumentState);
 
                         // Remove client session when disconnected.
-                        socket.once('disconnect', () => {
-                            synchronizer.clientLeftSession(socket.id, documentId);
+                        socket.once('disconnect', async () => {
+                            await synchronizer.clientLeftSession(socket.id, documentId);
                         });
                     }
                 );

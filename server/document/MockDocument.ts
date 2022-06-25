@@ -25,13 +25,13 @@ export default class MockDocument implements Document {
         this.id = id;
     }
 
-    open(): Document {
+    async open(): Promise<Document | false> {
         // console.log(`[${this.constructor.name}] Document ${this.id} is opened.`);
         this._isOpen = true;
         return this;
     }
 
-    close(): boolean {
+    async close(): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
 
