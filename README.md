@@ -18,7 +18,7 @@ https://user-images.githubusercontent.com/50919012/175041277-eceab0c4-402a-4e73-
 ## Running the app
 
 **Method 1**
-- Deployed version at http://editor.alielganzory.me
+- Deployed version at http://editor.alielganzory.me (temporarily down)
 
 **Method 2**
 1. Download source code from Git repository.
